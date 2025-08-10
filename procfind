@@ -27,6 +27,9 @@ if [[ ! -L "$INSTALL_PATH" || "$(realpath "$INSTALL_PATH")" != "$REAL_PATH" ]]; 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         sudo ln -sf "$REAL_PATH" "$INSTALL_PATH"
         echo "✅ Symlink created: $INSTALL_PATH → $REAL_PATH"
+        chmod +x "$INSTALL_PATH"
+        chmod +x "$REAL_PATH"
+        echo "You can now run this script from anywhere using: $SCRIPT_NAME"
         exit 0
     else
         echo "ℹ️ Skipping installation. Running locally."
