@@ -138,9 +138,23 @@ if $FOLLOW; then
         clear
         echo "🔍 Monitoring process: $PROCESS_NAME"
         echo
-        display_matches
+        matches=$(get_processes | sed -E "s/($PROCESS_NAME)/${RED}\1${NC}/Ig")
+
+        # Check if only header is present or no matches
+        if [ "$(echo "$matches" | wc -l)" -le 1 ]; then
+            echo "None"
+        else
+            echo "$matches"
+        fi
         sleep 2
     done
 else
-    display_matches
+    matches=$(get_processes | sed -E "s/($PROCESS_NAME)/${RED}\1${NC}/Ig")
+
+    # Check if only header is present or no matches
+    if [ "$(echo "$matches" | wc -l)" -le 1 ]; then
+        echo "None"
+    else
+        echo "$matches"
+    fi
 fi
