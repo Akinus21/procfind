@@ -5,11 +5,34 @@ set -euo pipefail
 # --- Color setup ---
 RED=$(printf '\033[0;31m')
 NC=$(printf '\033[0m')
+GREEN=$(printf '\033[0;32m')
 
 # --- Script and install path ---
 SCRIPT_NAME="procfind"
 INSTALL_PATH="/usr/bin/$SCRIPT_NAME"
 REAL_PATH="$(realpath "$0")"
+SCRIPT_DIR="$(dirname "$REAL_PATH")"
+
+# --- Git update check ---
+if [[ -d "$SCRIPT_DIR/.git" ]]; then
+    cd "$SCRIPT_DIR" || exit 1
+    git fetch --quiet
+
+    LOCAL_HASH=$(git rev-parse HEAD)
+    REMOTE_HASH=$(git rev-parse @{u} 2>/dev/null || echo "")
+
+    if [[ -n "$REMOTE_HASH" && "$LOCAL_HASH" != "$REMOTE_HASH" ]]; then
+        echo "📢 Update available for $SCRIPT_NAME."
+        read -p "Would you like to update to the latest version? [y/N] " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            echo "🔄 Pulling latest changes..."
+            git pull --ff-only
+            echo -e "${GREEN}✅ $SCRIPT_NAME has been updated. Please re-run the command.${NC}"
+            exit 0
+        fi
+    fi
+    cd - >/dev/null || exit 1
+fi
 
 # --- Symlink installation check ---
 if [[ ! -L "$INSTALL_PATH" || "$(realpath "$INSTALL_PATH")" != "$REAL_PATH" ]]; then
